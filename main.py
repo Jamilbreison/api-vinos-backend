@@ -5,26 +5,19 @@ import pandas as pd
 
 app = FastAPI(title="API Predictor de Calidad del Vino")
 
-# 1. Cargar los 3 archivos
+# 1. Cargar los modelos
+# NOTA: Asegúrate de que este modelo lineal se haya entrenado SOLO con las 3 variables.
+# Si en Colab lo entrenaste con todo el dataset por error, debes reentrenarlo usando el CSV filtrado.
 modelo_lineal = joblib.load('modelo_lineal_vinos.pkl')
 transformador_poly = joblib.load('transformador_poly.pkl')
 modelo_poli = joblib.load('modelo_polinomial_vinos.pkl')
 
-# 2. Definir la estructura de entrada
-# Basado en el dataset tradicional de calidad de vino (11 variables)
+# 2. Definir la estructura de entrada usando solo TUS 3 variables
 class DatosVino(BaseModel):
-    acidez_fija: float
-    acidez_volatil: float
-    acido_citrico: float
-    azucar_residual: float
-    cloruros: float
-    dioxido_azufre_libre: float
-    dioxido_azufre_total: float
-    densidad: float
-    pH: float
-    sulfatos: float
     alcohol: float
-    tipo_modelo: str = "lineal" # "lineal" o "polinomial"
+    sulfato: float
+    acido_citrico: float
+    tipo_modelo: str = "lineal" # Puede ser "lineal" o "polinomial"
 
 @app.get("/")
 def home():
@@ -32,32 +25,19 @@ def home():
 
 @app.post("/predecir")
 def predecir_calidad(datos: DatosVino):
-    # Crear un DataFrame con TODAS las variables en el orden correcto
-    df_completo = pd.DataFrame([{
-        'fixed acidity': datos.acidez_fija,
-        'volatile acidity': datos.acidez_volatil,
-        'citric acid': datos.acido_citrico,
-        'residual sugar': datos.azucar_residual,
-        'chlorides': datos.cloruros,
-        'free sulfur dioxide': datos.dioxido_azufre_libre,
-        'total sulfur dioxide': datos.dioxido_azufre_total,
-        'density': datos.densidad,
-        'pH': datos.pH,
-        'sulphates': datos.sulfatos,
-        'alcohol': datos.alcohol
+    # 3. Crear el DataFrame EXACTAMENTE con los nombres de columna de tu CSV
+    df_entrada = pd.DataFrame([{
+        'alcohol': datos.alcohol,
+        'sulfato': datos.sulfato,
+        'acido citrico': datos.acido_citrico
     }])
 
     if datos.tipo_modelo == "lineal":
-        # El modelo lineal usa las 11 variables
-        prediccion = modelo_lineal.predict(df_completo)
+        prediccion = modelo_lineal.predict(df_entrada)
     
     elif datos.tipo_modelo == "polinomial":
-        # El modelo polinomial solo usa 3 (ajusta los nombres si usaste otros en Colab)
-        df_reducido = df_completo[['alcohol', 'sulphates', 'citric acid']]
-        
-        # 1ro: Transformar los datos a grado 2
-        datos_transformados = transformador_poly.transform(df_reducido)
-        # 2do: Predecir con el modelo polinomial
+        # Primero transformamos las 3 variables y luego predecimos
+        datos_transformados = transformador_poly.transform(df_entrada)
         prediccion = modelo_poli.predict(datos_transformados)
         
     else:
