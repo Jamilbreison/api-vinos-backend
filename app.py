@@ -13,7 +13,7 @@ acido_citrico = st.number_input("Ácido Cítrico", min_value=0.0, max_value=1.0,
 modelo_seleccionado = st.selectbox("Selecciona el modelo de IA:", ["lineal", "polinomial"])
 
 # IMPORTANTE: Reemplaza esta URL con la que te dé Render una vez publicado tu Backend
-URL_API = "http://127.0.0.1:8000" 
+URL_API = "https://api-vinos-backend.onrender.com" 
 
 if st.button("Obtener Predicción"):
     # Respetamos el espacio en 'acido citrico' para el JSON
