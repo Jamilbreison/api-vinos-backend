@@ -1,6 +1,8 @@
 fastapi
 uvicorn
-scikit-learn==1.6.1
-pandas
-joblib
 pydantic
+joblib
+pandas
+scikit-learn==1.6.1
+streamlit
+requests
