@@ -4,5 +4,5 @@ pydantic
 joblib
 pandas
 scikit-learn==1.6.1
-streamlit
+streamlit>=1.30.0
 requests
