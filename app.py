@@ -10,7 +10,7 @@ sulfato = st.number_input("Nivel de Sulfato", min_value=0.0, max_value=2.0, valu
 acido_citrico = st.number_input("Ácido Cítrico", min_value=0.0, max_value=1.0, value=0.2, step=0.01)
 
 # Selección de modelo
-modelo_seleccionado = st.selectbox("Selecciona el modelo de IA:", ["lineal", "polinomial"])
+modelo_seleccionado = st.selectbox("Selecciona el modelo de IA:", ["lineal Multiple", "polinomial"])
 
 # IMPORTANTE: Reemplaza esta URL con la que te dé Render una vez publicado tu Backend
 URL_API = "https://api-vinos-backend.onrender.com"
