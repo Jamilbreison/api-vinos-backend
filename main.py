@@ -29,13 +29,18 @@ def predecir_calidad(tipo_modelo: str, datos: DatosVino):
         "acido citrico": datos.acido_citrico
     }])
 
-    if tipo_modelo == "lineal":
-        prediccion = modelo_lineal.predict(df_entrada)[0]
-    elif tipo_modelo == "polinomial":
-        # Transformar los datos primero
-        df_transformado = transformador.transform(df_entrada)
-        prediccion = modelo_poli.predict(df_transformado)[0]
-    else:
-        raise HTTPException(status_code=400, detail="Modelo no válido. Usa 'lineal' o 'polinomial'.")
+    try:
+        if tipo_modelo == "lineal":
+            prediccion = modelo_lineal.predict(df_entrada)[0]
+        elif tipo_modelo == "polinomial":
+            # Transformar los datos primero
+            df_transformado = transformador.transform(df_entrada)
+            prediccion = modelo_poli.predict(df_transformado)[0]
+        else:
+            raise HTTPException(status_code=400, detail="Modelo no válido. Usa 'lineal' o 'polinomial'.")
 
-    return {"prediccion_calidad": float(prediccion)}
+        return {"prediccion_calidad": float(prediccion)}
+        
+    except Exception as e:
+        # ¡AQUÍ ESTÁ LA MAGIA! Si el modelo falla, enviamos el error exacto de Python al Frontend
+        raise HTTPException(status_code=500, detail=f"Error interno del modelo: {str(e)}")
