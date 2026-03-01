@@ -25,12 +25,21 @@ if st.button("Obtener Predicción"):
     
     endpoint = f"{URL_API}/predecir/{modelo_seleccionado}"
     
-    try:
-        respuesta = requests.post(endpoint, json=payload)
-        if respuesta.status_code == 200:
-            resultado = respuesta.json()["prediccion_calidad"]
-            st.success(f"La calidad estimada del vino es: **{resultado:.2f}**")
+try:
+        # CAMBIO 1: Actualizamos el nombre esperado por la API
+        if tipo_modelo == "lineal_multiple":
+            prediccion = modelo_lineal.predict(df_entrada)[0]
+            
+        elif tipo_modelo == "polinomial":
+            # Transformar los datos primero
+            df_transformado = transformador.transform(df_entrada)
+            prediccion = modelo_poli.predict(df_transformado)[0]
+            
         else:
-            st.error(f"Error en la API: {respuesta.text}")
-    except requests.exceptions.ConnectionError:
-        st.error("No se pudo conectar con el Backend. Verifica que la API esté en línea y la URL sea correcta.")
+            # CAMBIO 2: Actualizamos el mensaje de error
+            raise HTTPException(status_code=400, detail="Modelo no válido. Usa 'lineal_multiple' o 'polinomial'.")
+
+        return {"prediccion_calidad": float(prediccion)}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error interno del modelo: {str(e)}")
